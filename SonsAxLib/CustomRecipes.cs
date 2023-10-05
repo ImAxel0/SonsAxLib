@@ -1,6 +1,7 @@
 ﻿using RedLoader;
 using Sons.Crafting;
 using System.Collections;
+using System.Linq;
 using static Sons.Crafting.CraftingRecipe;
 
 namespace SonsAxLib;
@@ -10,7 +11,7 @@ namespace SonsAxLib;
 /// </summary>
 public class CustomRecipes
 {
-    static List<int> _addedRecipes = new();
+    static List<ItemIdManager.ItemsId> _addedRecipes = new();
 
     /// <summary>
     /// <para>Let add new recipes to the game</para>
@@ -19,7 +20,7 @@ public class CustomRecipes
     /// <param name="recipeName">Name of the recipe</param>
     /// <param name="idCountPair">Dictionary containing the required item id and it's required count</param>
     /// <param name="obtainedItemID">The resulting item from the craft</param>
-    public static void CreateRecipe(string recipeName, Dictionary<int, int> idCountPair, int obtainedItemID)
+    public static void CreateRecipe(string recipeName, Dictionary<ItemIdManager.ItemsId, int> idCountPair, ItemIdManager.ItemsId obtainedItemID)
     {
         if (_addedRecipes.Contains(obtainedItemID))
         {
@@ -29,7 +30,7 @@ public class CustomRecipes
         CreateRecipeInternal(recipeName, idCountPair, obtainedItemID).RunCoro();
     }
 
-    internal static IEnumerator CreateRecipeInternal(string recipeName, Dictionary<int, int> idCountPair, int obtainedItemID)
+    internal static IEnumerator CreateRecipeInternal(string recipeName, Dictionary<ItemIdManager.ItemsId, int> idCountPair, ItemIdManager.ItemsId obtainedItemID)
     {
         while (!CraftingSystem.Instance) yield return null;
 
@@ -47,7 +48,7 @@ public class CustomRecipes
         };
 
         // the obtained item ID
-        ResultingItem resultingItem = new() { Id = obtainedItemID };
+        ResultingItem resultingItem = new() { Id = (int)obtainedItemID };
 
         // adding obtained item to obtained list & setting it to the recipe
         resultingItems.Add(resultingItem);
@@ -58,7 +59,7 @@ public class CustomRecipes
         {
             CraftingIngredient craftingIngredient = new()
             {
-                ItemId = pair.Key,
+                ItemId = (int)pair.Key,
                 Count = pair.Value,
                 IsReusable = false
             };
