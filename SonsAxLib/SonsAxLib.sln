@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonsAxLib", "SonsAxLib.csproj", "{59FA755A-7202-4936-BCD6-9C012C8E9103}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59FA755A-7202-4936-BCD6-9C012C8E9103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59FA755A-7202-4936-BCD6-9C012C8E9103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59FA755A-7202-4936-BCD6-9C012C8E9103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59FA755A-7202-4936-BCD6-9C012C8E9103}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {77CB4FAC-935D-46AA-AB68-1467B2CE2C52}
+	EndGlobalSection
+EndGlobal

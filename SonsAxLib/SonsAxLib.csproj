@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>bin\Release\net6.0\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="FMOD.Unity">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\FMOD.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Il2Cppmscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="RedLoader">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\net6\RedLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons.Ai.Vail">
+      <HintPath>bin\Release\net6.0\Sons.Ai.Vail.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons.FMOD">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.FMOD.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons.Gui">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.Gui.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons.Input">
+      <HintPath>bin\Release\net6.0\Sons.Input.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons.Item">
+      <HintPath>bin\Release\net6.0\Sons.Item.dll</HintPath>
+    </Reference>
+    <Reference Include="Sons.SettingsWrappers">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.SettingsWrappers.dll</HintPath>
+    </Reference>
+    <Reference Include="SonsSdk">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\net6\SonsSdk.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <HintPath>bin\Release\net6.0\Unity.InputSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>bin\Release\net6.0\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>bin\Release\net6.0\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>bin\Release\net6.0\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
