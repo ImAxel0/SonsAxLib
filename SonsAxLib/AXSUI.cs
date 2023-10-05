@@ -8,6 +8,7 @@ using Color = UnityEngine.Color;
 using SonsSdk;
 using RedLoader;
 using System;
+using System.Drawing;
 
 namespace SonsAxLib;
 
@@ -448,29 +449,31 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Gets the main container of a <see langword="AxCreateMenuPanel"/> to which you can add other AxMenuComponents (e.g <see langword="AxMenuSlider"/>) or SUI elements
+    /// <para>Gets the main container of next panels to which you can add other AxMenuComponents (e.g <see langword="AxMenuSlider"/>) or SUI elements</para>
+    /// <para>Used for: <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/></para>
     /// </summary>
     /// <param name="panelId"></param>
     /// <returns></returns>
-    public static SScrollContainerOptions AxGetMenuContainer(string panelId)
+    public static SScrollContainerOptions AxGetMainContainer(string panelId)
     {
         var scrollbar = (SContainerOptions)GetPanel(panelId)["scrollbar"];
         return (SScrollContainerOptions)scrollbar["scrollcontainer"];
     }
 
     /// <summary>
-    /// Gets the main container of a <see langword="AxCreateMenuPanel"/> to which you can add other MenuComponents (e.g <see langword="AxMenuSlider"/>) or SUI elements
+    /// <para>Gets the main container of next panels to which you can add other AxMenuComponents (e.g <see langword="AxMenuSlider"/>) or SUI elements</para>
+    /// <para>Used for: <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/></para>
     /// </summary>
     /// <param name="panel"></param>
     /// <returns></returns>
-    public static SScrollContainerOptions AxGetMenuContainer(SPanelOptions panel)
+    public static SScrollContainerOptions AxGetMainContainer(SPanelOptions panel)
     {
         var scrollbar = (SContainerOptions)GetPanel(panel.Id)["scrollbar"];
         return (SScrollContainerOptions)scrollbar["scrollcontainer"];
     }
 
     /// <summary>
-    /// Gets the title of a <see langword="AxCreateMenuPanel"/> panel
+    /// Gets the title of a <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="panelId"></param>
     /// <returns></returns>
@@ -480,7 +483,7 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Gets the title of a <see langword="AxCreateMenuPanel"/> panel
+    /// Gets the title of a <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="panel"></param>
     /// <returns></returns>
@@ -490,7 +493,7 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Creates a vertical settings like menu panel to which you can add sliders, input text etc.
+    /// Creates a vertical settings like menu panel with scrollbar to which you can add sliders, input text etc.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="title"></param>
@@ -501,7 +504,7 @@ public class AXSUI
     /// <returns></returns>
     public static SPanelOptions AxCreateMenuPanel(string id, string title, Vector2 size, Color? color = null, EBackground style = EBackground.RoundedStandard, bool enableInput = true)
     {
-        color ??= Color.black;
+        color ??= Color.black.WithAlpha(0.95f);
 
         var menuPanel = AxCreatePanel(id, size, AnchorType.MiddleCenter, color, style, enableInput).Vertical(2, "EC").Padding(2);
 
@@ -536,7 +539,7 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Creates an <see langword="int"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>
+    /// Creates an <see langword="int"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="label"></param>
     /// <param name="min"></param>
@@ -552,7 +555,7 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Creates a <see langword="float"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>
+    /// Creates a <see langword="float"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="label"></param>
     /// <param name="min"></param>
@@ -569,7 +572,7 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Creates an input text box with a background container, mainly used with <see langword="AxCreateMenuPanel"/>
+    /// Creates an input text box with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="label"></param>
     /// <param name="placeHolder"></param>
@@ -581,5 +584,59 @@ public class AXSUI
     {
         return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
             - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10);
+    }
+
+    public enum Side
+    {
+        Left,
+        Right
+    }
+
+    /// <summary>
+    /// Creates a vertical panel on a side of the screen which fills it vertically which you can add sliders, input text etc.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="title"></param>
+    /// <param name="side"></param>
+    /// <param name="hSize"></param>
+    /// <param name="color"></param>
+    /// <param name="style"></param>
+    /// <param name="enableInput"></param>
+    /// <returns></returns>
+    public static SPanelOptions AxCreateScrollBorderPanel(string id, string title, Side side, float hSize, Color? color = null, EBackground style = EBackground.None, bool enableInput = false)
+    {
+        color ??= Color.black.WithAlpha(0.95f);
+        AnchorType anchorType = (side == Side.Left) ? AnchorType.TopLeft : AnchorType.TopRight;
+        var pos = (anchorType == AnchorType.TopLeft) ? new Vector2(0, -0) : new Vector2(-hSize, -0);
+
+        var sidePanel = RegisterNewPanel(id, enableInput)
+            .Pivot(0, 0)
+            .Anchor(anchorType)
+            .Background((Color)color, style)
+            .Size(hSize)
+            .Position(pos.x, pos.y)
+            .Vertical(5, "EC")
+            .VFill();
+
+        var titleContainer = SContainer.Background((Color)color, EBackground.None).PaddingVertical(10).PHeight(50)
+            - AxTextAutoSize(title).Id("menutitle")
+            - AxButton("X", CloseMenuPanel, new Vector2(50, 50), AnchorType.MiddleRight).Background(EBackground.RoundedStandard);
+        sidePanel.Add(titleContainer);
+
+        var scrollBar = SDiv.FlexHeight(1);
+        scrollBar.Id("scrollbar");
+        sidePanel.Add(scrollBar);
+
+        var settingsScroll = SScrollContainer
+        .Dock(EDockType.Fill)
+        .Background(Color.black.WithAlpha(0), EBackground.RoundedStandard)
+        .Size(-20, -20)
+        .As<SScrollContainerOptions>();
+        settingsScroll.ContainerObject.Spacing(10);
+        settingsScroll.ContainerObject.PaddingHorizontal(10);
+        settingsScroll.Id("scrollcontainer");
+        scrollBar.Add(settingsScroll);
+
+        return (SPanelOptions)sidePanel;
     }
 }
