@@ -9,6 +9,9 @@ using SonsSdk;
 using RedLoader;
 using System;
 using System.Drawing;
+using static SonsAxLib.AXSUI;
+using Sons.Input;
+using System.Collections;
 
 namespace SonsAxLib;
 
@@ -38,13 +41,14 @@ public class AXSUI
     /// Creates a new panel with auto position adjustment when the anchor is set on screen borders
     /// </summary>
     /// <param name="id"></param>
+    /// <param name="canMove"></param>
     /// <param name="size"></param>
     /// <param name="anchorType"></param>
     /// <param name="color"></param>
     /// <param name="style"></param>
     /// <param name="enableInput"></param>
     /// <returns></returns>
-    public static SPanelOptions AxCreatePanel(string id, Vector2 size, AnchorType anchorType, Color? color = null, EBackground style = EBackground.None, bool enableInput = false)
+    public static SPanelOptions AxCreatePanel(string id, bool canMove, Vector2 size, AnchorType anchorType, Color? color = null, EBackground style = EBackground.None, bool enableInput = false)
     {
         color ??= Color.black;
 
@@ -52,19 +56,35 @@ public class AXSUI
 
         if (pos == Vector2.zero)
         {
-            return (SPanelOptions)RegisterNewPanel(id, enableInput)
+            var panel = RegisterNewPanel(id, enableInput)
                 .Pivot(0, 0)
                 .Background((Color)color, style)
                 .Anchor(anchorType)
                 .Size(size.x, size.y);
+
+            if (canMove)
+            {
+                var moveButton = AxButton("", Dummy, new Vector2(size.x / 20, size.y / 20), AnchorType.TopLeft).Background(style).Color(Color.cyan.WithAlpha(color.Value.a));
+                panel.Add(moveButton);
+                MoveMouse(moveButton, id).RunCoro();
+            }
+            return (SPanelOptions)panel;
         }
 
-        return (SPanelOptions)RegisterNewPanel(id, enableInput)
+        var panel1 = RegisterNewPanel(id, enableInput)
             .Pivot(0, 0)
             .Background((Color)color, style)
             .Anchor(anchorType)
             .Size(size.x, size.y)
             .Position(pos.x, pos.y);
+
+        if (canMove)
+        {
+            var moveButton = AxButton("", Dummy, new Vector2(size.x / 20, size.y / 20), AnchorType.TopLeft).Background(style).Color(Color.cyan.WithAlpha(color.Value.a));
+            panel1.Add(moveButton);
+            MoveMouse(moveButton, id).RunCoro();
+        }
+        return (SPanelOptions)panel1;
     }
 
     /// <summary>
@@ -198,6 +218,22 @@ public class AXSUI
     /// <param name="eDockType"></param>
     /// <returns></returns>
     public static SBgButtonOptions AxButton(string label, Action onClick, EDockType eDockType = EDockType.Fill)
+    {
+        return SBgButton
+        .Pivot(0, 0)
+        .Text(label)
+        .Dock(eDockType)
+        .Notify(onClick);
+    }
+
+    /// <summary>
+    /// Creates an interactable button with specified dock type
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="onClick"></param>
+    /// <param name="eDockType"></param>
+    /// <returns></returns>
+    public static SBgButtonOptions AxButton(string label, Action<SBgButtonOptions> onClick, EDockType eDockType = EDockType.Fill)
     {
         return SBgButton
         .Pivot(0, 0)
@@ -498,20 +534,25 @@ public class AXSUI
     /// <param name="id"></param>
     /// <param name="title"></param>
     /// <param name="size"></param>
+    /// <param name="anchorType"></param>
     /// <param name="color"></param>
     /// <param name="style"></param>
     /// <param name="enableInput"></param>
     /// <returns></returns>
-    public static SPanelOptions AxCreateMenuPanel(string id, string title, Vector2 size, Color? color = null, EBackground style = EBackground.RoundedStandard, bool enableInput = true)
+    public static SPanelOptions AxCreateMenuPanel(string id, string title, Vector2 size, AnchorType anchorType = AnchorType.MiddleCenter, Color? color = null, EBackground style = EBackground.RoundedStandard, bool enableInput = true)
     {
-        color ??= Color.black.WithAlpha(0.95f);
+        color ??= Color.black.WithAlpha(0.92f);
 
-        var menuPanel = AxCreatePanel(id, size, AnchorType.MiddleCenter, color, style, enableInput).Vertical(2, "EC").Padding(2);
+        var menuPanel = AxCreatePanel(id, false, size, anchorType, color, style, enableInput).Vertical(2, "EC").Padding(2);
 
-        var titleContainer = SContainer.Background((Color)color, EBackground.None).PaddingVertical(10).PHeight(size.y / 10)
+        var titleContainer = SContainer.Background((Color)color, style).PaddingVertical(10).PHeight(size.y / 10)
             - AxTextAutoSize(title).Id("menutitle")
-            - AxButton("X", CloseMenuPanel, new Vector2(size.x / 10, size.y / 10), AnchorType.MiddleRight).Background(EBackground.RoundedStandard);
+            - AxButton("X", CloseMenuPanel, new Vector2(size.x / 10, size.y / 10), AnchorType.MiddleRight).Background(style).Id($"close{id}");
+
+        var moveButton = AxButton("", Dummy, new Vector2(size.x / 20, size.y / 20), AnchorType.TopLeft).Background(style).Color(Color.cyan.WithAlpha(color.Value.a));
+        titleContainer.Add(moveButton);
         menuPanel.Add(titleContainer);
+        MoveMouse(moveButton, id).RunCoro();
 
         var scrollBar = SDiv.FlexHeight(1);
         scrollBar.Id("scrollbar");
@@ -519,7 +560,7 @@ public class AXSUI
 
         var settingsScroll = SScrollContainer
         .Dock(EDockType.Fill)
-        .Background(Color.black.WithAlpha(0), EBackground.RoundedStandard)
+        .Background(Color.black.WithAlpha(0), style)
         .Size(-20, -20)
         .As<SScrollContainerOptions>();
         settingsScroll.ContainerObject.Spacing(10);
@@ -527,37 +568,100 @@ public class AXSUI
         settingsScroll.Id("scrollcontainer");
         scrollBar.Add(settingsScroll);
 
-        var bottomContainer = SContainer.Background((Color)color, EBackground.None).PaddingVertical(10).PHeight(size.y / 15);
+        var bottomContainer = SContainer.Background((Color)color, style).PaddingVertical(10).PHeight(size.y / 15);
         menuPanel.Add(bottomContainer);
 
         return (SPanelOptions)menuPanel;
     }
 
-    internal static void CloseMenuPanel()
+    internal static void Dummy()
     {
-        TogglePanel("", false);
+
+    }
+
+    internal static void CloseMenuPanel(SBgButtonOptions id)
+    {
+        TogglePanel(id._id.Remove(0, 5), false);
+    }
+
+    internal static IEnumerator MoveMouse(SBgButtonOptions buttonId, string panelId)
+    {
+        var panelTr = GetPanel(panelId).RectTransform;
+        while (true)
+        {
+            if (buttonId.ButtonObject.hasSelection) panelTr.SetPositionAndRotation(new Vector2(Input.mousePosition.x, Input.mousePosition.y - panelTr.sizeDelta.y), Quaternion.identity);
+            yield return null;
+        }
+    }
+
+    internal static void MovePanel(SBgButtonOptions id)
+    {
+        float moveFactor = 30;
+        string[] split = id._id.Split('_', StringSplitOptions.None);
+        var panelTr = GetPanel(split[1]).RectTransform;
+
+        switch (split[0])
+        {
+            case "up":
+                panelTr.SetPositionAndRotation(new Vector2(panelTr.transform.position.x, panelTr.transform.position.y + moveFactor), Quaternion.identity);
+                break;
+            case "lt":
+                panelTr.SetPositionAndRotation(new Vector2(panelTr.transform.position.x - moveFactor, panelTr.transform.position.y), Quaternion.identity);
+                break;
+            case "rt":
+                panelTr.SetPositionAndRotation(new Vector2(panelTr.transform.position.x + moveFactor, panelTr.transform.position.y), Quaternion.identity);
+                break;
+            case "dn":
+                panelTr.SetPositionAndRotation(new Vector2(panelTr.transform.position.x, panelTr.transform.position.y - moveFactor), Quaternion.identity);
+                break;
+        }
+    }
+
+    public enum LabelPosition
+    {
+        Left,
+        Top,
+        Right,
+        Bottom,
     }
 
     /// <summary>
     /// Creates an <see langword="int"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
-    /// <param name="label"></param>
+    /// <param name="label"></param>   
+    /// <param name="labelPosition"></param>
     /// <param name="min"></param>
     /// <param name="max"></param>
     /// <param name="defaultValue"></param>
     /// <param name="onValueChange"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    public static SContainerOptions AxMenuSliderInt(string label, int min, int max, int defaultValue, Action<float> onValueChange = null, float height = 50f)
+    public static SContainerOptions AxMenuSliderInt(string label, LabelPosition labelPosition, int min, int max, int defaultValue, Action<float> onValueChange = null, float height = 50f)
     {
-        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
-            - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10);
+        SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
+
+        return labelPosition switch
+        {
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxText(label, (int)(50 * (height / 100)))
+                                - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility),
+            LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                        - AxText(label, (int)(50 * (height / 100)))
+                        - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility),
+        };
     }
 
     /// <summary>
     /// Creates a <see langword="float"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="label"></param>
+    /// <param name="labelPosition"></param>
     /// <param name="min"></param>
     /// <param name="max"></param>
     /// <param name="defaultValue"></param>
@@ -565,25 +669,70 @@ public class AXSUI
     /// <param name="onValueChange"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    public static SContainerOptions AxMenuSliderFloat(string label, float min, float max, float defaultValue, float step = 0.1f, Action<float> onValueChange = null, float height = 50f)
+    public static SContainerOptions AxMenuSliderFloat(string label, LabelPosition labelPosition, float min, float max, float defaultValue, float step = 0.1f, Action<float> onValueChange = null, float height = 50f)
     {
-        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
-            - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10);
+        SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
+
+        return labelPosition switch
+        {
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxText(label, (int)(50 * (height / 100)))
+                                - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility),
+            LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                        - AxText(label, (int)(50 * (height / 100)))
+                        - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility),
+        };
     }
 
     /// <summary>
     /// Creates an input text box with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
     /// </summary>
     /// <param name="label"></param>
+    /// <param name="labelPosition"></param>
     /// <param name="placeHolder"></param>
     /// <param name="input"></param>
     /// <param name="onValueChange"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    public static SContainerOptions AxMenuInputText(string label, string placeHolder, Observable<string> input, Action<string> onValueChange = null, float height = 50f)
+    public static SContainerOptions AxMenuInputText(string label, LabelPosition labelPosition, string placeHolder, Observable<string> input, Action<string> onValueChange = null, float height = 50f)
+    {
+        return labelPosition switch
+        {
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 2f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxText(label, (int)(50 * (height / 100)))
+                                - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10).HideLabel(),
+            LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10).HideLabel()
+                                - AxText(label, (int)(50 * (height / 100))),
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 2f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10).HideLabel()
+                                - AxText(label, (int)(50 * (height / 100))),
+            _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                - AxText(label, (int)(50 * (height / 100)))
+                                - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10).HideLabel()
+        };
+    }
+
+    /// <summary>
+    /// Creates an input text box with a background container with width control, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateScrollBorderPanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="placeHolder"></param>
+    /// <param name="inputWidth"></param>
+    /// <param name="input"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuInputText(string label, string placeHolder, float inputWidth, Observable<string> input, Action<string> onValueChange = null, float height = 50f)
     {
         return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
-            - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10);
+            - AxInputText(label, placeHolder, input, onValueChange).HOffset(10, -10).InputFlexWidth(inputWidth);
     }
 
     public enum Side
@@ -593,7 +742,7 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Creates a vertical panel on a side of the screen which fills it vertically which you can add sliders, input text etc.
+    /// Creates a vertical panel on a side of the screen which fills it vertically on which you can add sliders, input text etc.
     /// </summary>
     /// <param name="id"></param>
     /// <param name="title"></param>
@@ -605,7 +754,7 @@ public class AXSUI
     /// <returns></returns>
     public static SPanelOptions AxCreateScrollBorderPanel(string id, string title, Side side, float hSize, Color? color = null, EBackground style = EBackground.None, bool enableInput = false)
     {
-        color ??= Color.black.WithAlpha(0.95f);
+        color ??= Color.black.WithAlpha(0.92f);
         AnchorType anchorType = (side == Side.Left) ? AnchorType.TopLeft : AnchorType.TopRight;
         var pos = (anchorType == AnchorType.TopLeft) ? new Vector2(0, -0) : new Vector2(-hSize, -0);
 
@@ -618,9 +767,9 @@ public class AXSUI
             .Vertical(5, "EC")
             .VFill();
 
-        var titleContainer = SContainer.Background((Color)color, EBackground.None).PaddingVertical(10).PHeight(50)
+        var titleContainer = SContainer.Background((Color)color, style).PaddingVertical(10).PHeight(50)
             - AxTextAutoSize(title).Id("menutitle")
-            - AxButton("X", CloseMenuPanel, new Vector2(50, 50), AnchorType.MiddleRight).Background(EBackground.RoundedStandard);
+            - AxButton("X", CloseMenuPanel, new Vector2(50, 50), AnchorType.MiddleRight).Background(EBackground.RoundedStandard).Id($"close{id}");
         sidePanel.Add(titleContainer);
 
         var scrollBar = SDiv.FlexHeight(1);
@@ -629,7 +778,7 @@ public class AXSUI
 
         var settingsScroll = SScrollContainer
         .Dock(EDockType.Fill)
-        .Background(Color.black.WithAlpha(0), EBackground.RoundedStandard)
+        .Background(Color.black.WithAlpha(0), style)
         .Size(-20, -20)
         .As<SScrollContainerOptions>();
         settingsScroll.ContainerObject.Spacing(10);

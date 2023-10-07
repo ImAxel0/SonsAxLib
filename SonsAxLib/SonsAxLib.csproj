@@ -65,6 +65,9 @@
     <Reference Include="UnityEngine.ImageConversionModule">
       <HintPath>bin\Release\net6.0\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>bin\Release\net6.0\UnityEngine.UI.dll</HintPath>
     </Reference>
