@@ -1,5 +1,7 @@
 ﻿using RedLoader;
 using Sons.Crafting;
+using Sons.Items.Core;
+using SonsSdk;
 using System.Collections;
 using System.Linq;
 using static Sons.Crafting.CraftingRecipe;
@@ -20,14 +22,17 @@ public class CustomRecipes
     /// <param name="recipeName">Name of the recipe</param>
     /// <param name="idCountPair">Dictionary containing the required item id and it's required count</param>
     /// <param name="obtainedItemID">The resulting item from the craft</param>
-    public static void CreateRecipe(string recipeName, Dictionary<ItemIdManager.ItemsId, int> idCountPair, ItemIdManager.ItemsId obtainedItemID)
+    public static bool CreateRecipe(string recipeName, Dictionary<ItemIdManager.ItemsId, int> idCountPair, ItemIdManager.ItemsId obtainedItemID)
     {
         if (_addedRecipes.Contains(obtainedItemID))
         {
             RLog.Warning($"Recipe with obtained item id = {obtainedItemID} was already added to the game");
-            return;
+            SonsTools.ShowMessage($"<color=orange>Error</color>, recipe for {ItemDatabaseManager.ItemById((int)obtainedItemID).Name} already added");
+            return false;
         }
+        _addedRecipes.Add(obtainedItemID);
         CreateRecipeInternal(recipeName, idCountPair, obtainedItemID).RunCoro();
+        return true;
     }
 
     internal static IEnumerator CreateRecipeInternal(string recipeName, Dictionary<ItemIdManager.ItemsId, int> idCountPair, ItemIdManager.ItemsId obtainedItemID)
@@ -71,6 +76,5 @@ public class CustomRecipes
 
         // Adding to game database
         CraftingSystem.Instance._recipeDatabase._recipes.Add(craftingRecipe);
-        _addedRecipes.Add(obtainedItemID);
     }
 }
