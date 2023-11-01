@@ -43,7 +43,7 @@ public class AXSUI
     /// Creates a new panel with auto position adjustment when the anchor is set on screen borders
     /// </summary>
     /// <param name="id"></param>
-    /// <param name="canMove"></param>
+    /// <param name="canMoveAndResize"></param>
     /// <param name="size"></param>
     /// <param name="anchorType"></param>
     /// <param name="color"></param>
@@ -334,6 +334,16 @@ public class AXSUI
             .Notify(onValueChange);
     }
 
+    /// <summary>
+    /// Creates a slider of type float in a panel or container with a visual binded value
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="defaultValue"></param>
+    /// <param name="step"></param>
+    /// <param name="onValueChange"></param>
+    /// <returns></returns>
     public static SSliderOptions AxSliderFloat(string label, float min, float max, Observable<float> defaultValue, float step = 0.1f, Action<float> onValueChange = null)
     {
         return SSlider
@@ -448,6 +458,12 @@ public class AXSUI
         return (SContainerOptions)GetPanel(panel.Id)[$"{index}"];
     }
 
+    /// <summary>
+    /// Used to access a container of a created NxN panel given the panel id (e.g <see langword="AxCreate2x2Panel"/>)
+    /// </summary>
+    /// <param name="panelId"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
     internal static SContainerOptions AxGetContainerAt(string panelId, string id)
     {
         return (SContainerOptions)GetPanel(panelId)[id];
@@ -517,42 +533,6 @@ public class AXSUI
         panel.Add(AxContainer(AnchorType.BottomCenter, new Vector2(size.x / 3, size.y / 3), color.Value.WithAlpha(Mathf.Clamp(color.Value.a + 0.2f, 0, 1)), style).Id("7"));
         panel.Add(AxContainer(AnchorType.BottomRight, new Vector2(size.x / 3, size.y / 3), color.Value.WithAlpha(Mathf.Clamp(color.Value.a + 0.2f, 0, 1)), style).Id("8"));
 
-        return (SPanelOptions)panel;
-    }
-
-    private static SPanelOptions AxCreateNxNPanel(string id, Vector2 size, AnchorType anchorType, int n, Color? color = null, EBackground style = EBackground.None, bool enableInput = false)
-    {
-        color ??= Color.black;
-        Vector2 pos = AutoPos(size, anchorType);
-
-        var panel = RegisterNewPanel(id, enableInput)
-        .Pivot(0, 0)
-        .Background((Color)color, style)
-        .Anchor(anchorType)
-        .Size(size.x, size.y)
-        .Position(pos.x, pos.y)
-        .Vertical(0, "EX");
-        
-        // creating each horizontal container
-        for (int i = 0; i < n; i++)
-        {
-            panel.Add(SContainer).Background(Color.cyan.WithAlpha(0.4f), EBackground.None).Id($"n{i}");
-        }
-        
-        // each horizontal container
-        for (int i = 0; i < n; i++)
-        {
-            SContainerOptions sContainer = AxGetContainerAt(id, $"n{i}");
-            if (sContainer == null) RLog.Warning("was null");
-            /*
-            // each box container
-            for (int j = 0; j < n; j++)
-            {
-                sContainer.Add(SContainer.Size(size.x / n, size.y / n).Background(Color.cyan));
-            }
-            */
-        }
-        
         return (SPanelOptions)panel;
     }
 
@@ -850,6 +830,18 @@ public class AXSUI
         };
     }
 
+    /// <summary>
+    /// Creates 3 <see langword="float"/> sliders with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="layoutMode"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="defaultValue"></param>
+    /// <param name="step"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
     public static SContainerOptions AxMenuSliderFloat3(string[] label, LayoutMode layoutMode, float min, float max, float[] defaultValue, float step = 0.1f, Action<float>[] onValueChange = null, float height = 50f)
     {
         SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
@@ -874,6 +866,18 @@ public class AXSUI
         };
     }
 
+    /// <summary>
+    /// Creates 3 <see langword="float"/> sliders with a background container and a visual binded value, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="layoutMode"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="defaultValue"></param>
+    /// <param name="step"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
     public static SContainerOptions AxMenuSliderFloat3(string[] label, LayoutMode layoutMode, float min, float max, Observable<float>[] defaultValue, float step = 0.1f, Action<float>[] onValueChange = null, float height = 50f)
     {
         SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
