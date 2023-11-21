@@ -11,6 +11,12 @@
     <Reference Include="0Harmony">
       <HintPath>bin\Release\net6.0\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="bolt">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\bolt.dll</HintPath>
+    </Reference>
+    <Reference Include="bolt.user">
+      <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\bolt.user.dll</HintPath>
+    </Reference>
     <Reference Include="FMOD.Unity">
       <HintPath>..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\FMOD.Unity.dll</HintPath>
     </Reference>

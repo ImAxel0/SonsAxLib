@@ -261,6 +261,50 @@ public class AXSUI
     }
 
     /// <summary>
+    /// Creates an interactable button with a background container
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="onClick"></param>
+    /// <param name="color"></param>
+    /// <param name="style"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuButton(string label, Action onClick, Color? color = null, EBackground style = EBackground.None, float height = 50f)
+    {
+        color ??= new Color(0.63f, 0.04f, 0.04f, 0.75f);
+
+        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
+            - SBgButton
+            .Text(label)
+            .Dock(EDockType.Fill)
+            .Color(color.Value)
+            .Background(style)
+            .Notify(onClick);
+    }
+
+    /// <summary>
+    /// Creates an interactable button with a background container
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="onClick"></param>
+    /// <param name="color"></param>
+    /// <param name="style"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuButton(string label, Action<SBgButtonOptions> onClick, Color? color = null, EBackground style = EBackground.None, float height = 50f)
+    {
+        color ??= new Color(0.63f, 0.04f, 0.04f, 0.75f);
+
+        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
+            - SBgButton
+            .Text(label)
+            .Dock(EDockType.Fill)
+            .Color(color.Value)
+            .Background(style)
+            .Notify(onClick);
+    }
+
+    /// <summary>
     /// Creates a text button like the ones in the main menu
     /// </summary>
     /// <param name="label"></param>
@@ -293,6 +337,53 @@ public class AXSUI
     }
 
     /// <summary>
+    /// Creates a text button like the ones in the main menu with a background container
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="onClick"></param>
+    /// <param name="fontSize"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuButtonText(string label, Action onClick, int fontSize = 18, float height = 50f)
+    {
+        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
+           - SButton
+            .Text(label)
+            .Dock(EDockType.Fill)
+            .FontSize(fontSize)
+            .Notify(onClick);
+    }
+
+    /// <summary>
+    /// Creates a text button like the ones in the main menu with a background container
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="onClick"></param>
+    /// <param name="strArg"></param>
+    /// <param name="fontSize"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuButtonText(string label, Action<SButtonOptions> onClick, string strArg = null, int fontSize = 18, float height = 50f)
+    {
+        if (strArg == null)
+        {
+            return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
+               - SButton
+                .Text(label)
+                .Dock(EDockType.Fill)
+                .FontSize(fontSize)
+                .Notify(onClick);
+        }
+
+        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
+           - SButton.Id(strArg)
+            .Text(label)
+            .Dock(EDockType.Fill)
+            .FontSize(fontSize)
+            .Notify(onClick);
+    }
+
+    /// <summary>
     /// Creates a slider of type int in a panel or container
     /// </summary>
     /// <param name="label"></param>
@@ -313,6 +404,26 @@ public class AXSUI
     }
 
     /// <summary>
+    /// Creates a slider of type int in a panel or container with a visual binded value
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="bindValue"></param>
+    /// <param name="onValueChange"></param>
+    /// <returns></returns>
+    public static SSliderOptions AxSliderInt(string label, int min, int max, Observable<float> bindValue, Action<float> onValueChange = null)
+    {
+        return SSlider
+            .Text(label)
+            .Dock(EDockType.Fill)
+            .Range(min, max)
+            .IntStep()
+            .Bind(bindValue)
+            .Notify(onValueChange);
+    }
+
+    /// <summary>A
     /// Creates a slider of type float in a panel or container
     /// </summary>
     /// <param name="label"></param>
@@ -340,11 +451,11 @@ public class AXSUI
     /// <param name="label"></param>
     /// <param name="min"></param>
     /// <param name="max"></param>
-    /// <param name="defaultValue"></param>
+    /// <param name="bindValue"></param>
     /// <param name="step"></param>
     /// <param name="onValueChange"></param>
     /// <returns></returns>
-    public static SSliderOptions AxSliderFloat(string label, float min, float max, Observable<float> defaultValue, float step = 0.1f, Action<float> onValueChange = null)
+    public static SSliderOptions AxSliderFloat(string label, float min, float max, Observable<float> bindValue, float step = 0.1f, Action<float> onValueChange = null)
     {
         return SSlider
             .Text(label)
@@ -352,7 +463,7 @@ public class AXSUI
             .Range(min, max)
             .Step(step)
             .Format("0.0")
-            .Bind(defaultValue)
+            .Bind(bindValue)
             .Notify(onValueChange);
     }
 
@@ -741,18 +852,50 @@ public class AXSUI
 
         return labelPosition switch
         {
-            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
                                 - AxText(label, (int)(50 * (height / 100)))
                                 - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility),
             LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
                                 - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility)
                                 - AxText(label, (int)(50 * (height / 100))),
-            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
                                 - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility)
                                 - AxText(label, (int)(50 * (height / 100))),
             _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
                         - AxText(label, (int)(50 * (height / 100)))
                         - AxSliderInt(label, min, max, defaultValue, onValueChange).HOffset(10, -10).Options(visibility),
+        };
+    }
+
+    /// <summary>
+    /// Creates an <see langword="int"/> slider with a background container and a visual binded value, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="labelPosition"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="bindValue"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuSliderInt(string label, LabelPosition labelPosition, int min, int max, Observable<float> bindValue, Action<float> onValueChange = null, float height = 50f)
+    {
+        SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
+
+        return labelPosition switch
+        {
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxText(label, (int)(50 * (height / 100)))
+                                - AxSliderInt(label, min, max, bindValue, onValueChange).HOffset(10, -10).Options(visibility),
+            LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                - AxSliderInt(label, min, max, bindValue, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxSliderInt(label, min, max, bindValue, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                        - AxText(label, (int)(50 * (height / 100)))
+                        - AxSliderInt(label, min, max, bindValue, onValueChange).HOffset(10, -10).Options(visibility),
         };
     }
 
@@ -798,6 +941,41 @@ public class AXSUI
     }
 
     /// <summary>
+    /// Creates 3 <see langword="int"/> sliders with a background container and visual binded values, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="layoutMode"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="bindValues"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuSliderInt3(string[] label, LayoutMode layoutMode, int min, int max, Observable<float>[] bindValues, Action<float>[] onValueChange = null, float height = 50f)
+    {
+        SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
+
+        return layoutMode switch
+        {
+            LayoutMode.Horizontal => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                    - AxText(label[0], (int)(50 * (height / 100)))
+                                    - AxSliderInt(label[0], min, max, bindValues[0], onValueChange?[0]).HOffset(10, -10).Options(visibility)
+                                    - AxText(label[1], (int)(50 * (height / 100)))
+                                    - AxSliderInt(label[1], min, max, bindValues[1], onValueChange?[1]).HOffset(10, -10).Options(visibility)
+                                    - AxText(label[2], (int)(50 * (height / 100)))
+                                    - AxSliderInt(label[2], min, max, bindValues[2], onValueChange?[2]).HOffset(10, -10).Options(visibility),
+
+            _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 5f).Vertical(0, "EC").PaddingVertical(5)
+                                    - AxText(label[0], (int)(50 * (height / 100)))
+                                    - AxSliderInt(label[0], min, max, bindValues[0], onValueChange?[0]).HOffset(10, -10).Options(visibility)
+                                    - AxText(label[1], (int)(50 * (height / 100)))
+                                    - AxSliderInt(label[1], min, max, bindValues[1], onValueChange?[1]).HOffset(10, -10).Options(visibility)
+                                    - AxText(label[2], (int)(50 * (height / 100)))
+                                    - AxSliderInt(label[2], min, max, bindValues[2], onValueChange?[2]).HOffset(10, -10).Options(visibility),
+        };
+    }
+
+    /// <summary>
     /// Creates a <see langword="float"/> slider with a background container, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
     /// </summary>
     /// <param name="label"></param>
@@ -815,18 +993,51 @@ public class AXSUI
 
         return labelPosition switch
         {
-            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
                                 - AxText(label, (int)(50 * (height / 100)))
                                 - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility),
             LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
                                 - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility)
                                 - AxText(label, (int)(50 * (height / 100))),
-            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.5f).Vertical(0, "EC").PaddingVertical(5)
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
                                 - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility)
                                 - AxText(label, (int)(50 * (height / 100))),
             _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
                         - AxText(label, (int)(50 * (height / 100)))
                         - AxSliderFloat(label, min, max, defaultValue, step, onValueChange).HOffset(10, -10).Options(visibility),
+        };
+    }
+
+    /// <summary>
+    /// Creates a <see langword="float"/> slider with a background container and a visual binded value, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="labelPosition"></param>
+    /// <param name="min"></param>
+    /// <param name="max"></param>
+    /// <param name="bindValue"></param>
+    /// <param name="step"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuSliderFloat(string label, LabelPosition labelPosition, float min, float max, Observable<float> bindValue, float step = 0.1f, Action<float> onValueChange = null, float height = 50f)
+    {
+        SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
+
+        return labelPosition switch
+        {
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxText(label, (int)(50 * (height / 100)))
+                                - AxSliderFloat(label, min, max, bindValue, step, onValueChange).HOffset(10, -10).Options(visibility),
+            LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                                - AxSliderFloat(label, min, max, bindValue, step, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 1.70f).Vertical(0, "EC").PaddingVertical(5)
+                                - AxSliderFloat(label, min, max, bindValue, step, onValueChange).HOffset(10, -10).Options(visibility)
+                                - AxText(label, (int)(50 * (height / 100))),
+            _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
+                        - AxText(label, (int)(50 * (height / 100)))
+                        - AxSliderFloat(label, min, max, bindValue, step, onValueChange).HOffset(10, -10).Options(visibility),
         };
     }
 
@@ -867,18 +1078,18 @@ public class AXSUI
     }
 
     /// <summary>
-    /// Creates 3 <see langword="float"/> sliders with a background container and a visual binded value, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// Creates 3 <see langword="float"/> sliders with a background container and visual binded values, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
     /// </summary>
     /// <param name="label"></param>
     /// <param name="layoutMode"></param>
     /// <param name="min"></param>
     /// <param name="max"></param>
-    /// <param name="defaultValue"></param>
+    /// <param name="bindValue"></param>
     /// <param name="step"></param>
     /// <param name="onValueChange"></param>
     /// <param name="height"></param>
     /// <returns></returns>
-    public static SContainerOptions AxMenuSliderFloat3(string[] label, LayoutMode layoutMode, float min, float max, Observable<float>[] defaultValue, float step = 0.1f, Action<float>[] onValueChange = null, float height = 50f)
+    public static SContainerOptions AxMenuSliderFloat3(string[] label, LayoutMode layoutMode, float min, float max, Observable<float>[] bindValue, float step = 0.1f, Action<float>[] onValueChange = null, float height = 50f)
     {
         SSliderOptions.VisibilityMask visibility = SSliderOptions.VisibilityMask.Readout | SSliderOptions.VisibilityMask.Buttons;
 
@@ -886,19 +1097,19 @@ public class AXSUI
         {
             LayoutMode.Horizontal => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
                                     - AxText(label[0], (int)(50 * (height / 100)))
-                                    - AxSliderFloat(label[0], min, max, defaultValue[0], step, onValueChange?.ElementAt(0)).HOffset(10, -10).Options(visibility)
+                                    - AxSliderFloat(label[0], min, max, bindValue[0], step, onValueChange?.ElementAt(0)).HOffset(10, -10).Options(visibility)
                                     - AxText(label[1], (int)(50 * (height / 100)))
-                                    - AxSliderFloat(label[1], min, max, defaultValue[1], step, onValueChange?.ElementAt(1)).HOffset(10, -10).Options(visibility)
+                                    - AxSliderFloat(label[1], min, max, bindValue[1], step, onValueChange?.ElementAt(1)).HOffset(10, -10).Options(visibility)
                                     - AxText(label[2], (int)(50 * (height / 100)))
-                                    - AxSliderFloat(label[2], min, max, defaultValue[2], step, onValueChange?.ElementAt(2)).HOffset(10, -10).Options(visibility),
+                                    - AxSliderFloat(label[2], min, max, bindValue[2], step, onValueChange?.ElementAt(2)).HOffset(10, -10).Options(visibility),
 
             _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 5f).Vertical(0, "EC").PaddingVertical(5)
                                     - AxText(label[0], (int)(50 * (height / 100)))
-                                    - AxSliderFloat(label[0], min, max, defaultValue[0], step, onValueChange?.ElementAt(0)).HOffset(10, -10).Options(visibility)
+                                    - AxSliderFloat(label[0], min, max, bindValue[0], step, onValueChange?.ElementAt(0)).HOffset(10, -10).Options(visibility)
                                     - AxText(label[1], (int)(50 * (height / 100)))
-                                    - AxSliderFloat(label[1], min, max, defaultValue[1], step, onValueChange?.ElementAt(1)).HOffset(10, -10).Options(visibility)
+                                    - AxSliderFloat(label[1], min, max, bindValue[1], step, onValueChange?.ElementAt(1)).HOffset(10, -10).Options(visibility)
                                     - AxText(label[2], (int)(50 * (height / 100)))
-                                    - AxSliderFloat(label[2], min, max, defaultValue[2], step, onValueChange?.ElementAt(2)).HOffset(10, -10).Options(visibility),
+                                    - AxSliderFloat(label[2], min, max, bindValue[2], step, onValueChange?.ElementAt(2)).HOffset(10, -10).Options(visibility),
         };
     }
 
@@ -958,18 +1169,15 @@ public class AXSUI
     /// <returns></returns>
     public static SContainerOptions AxMenuOptions(string label, LabelPosition labelPosition, Observable<string> value, string[] options, float height = 50f)
     {
-        //return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
-           // - SOptions.Text(label).Options(options).Bind(value).Dock(EDockType.Fill).HOffset(10, -10);
-
         return labelPosition switch
         {
-            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 2f).Vertical(0, "EC").PaddingVertical(5)
+            LabelPosition.Top => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 2f).Vertical(5, "EC").PaddingVertical(5)
                                 - AxText(label, (int)(50 * (height / 100)))
                                 - SOptions.Text(label).Options(options).Bind(value).Dock(EDockType.Fill).HOffset(10, -10).HideLabel(),
             LabelPosition.Right => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
                                 - SOptions.Text(label).Options(options).Bind(value).Dock(EDockType.Fill).HOffset(10, -10).HideLabel()
                                 - AxText(label, (int)(50 * (height / 100))),
-            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 2f).Vertical(0, "EC").PaddingVertical(5)
+            LabelPosition.Bottom => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height * 2f).Vertical(5, "EC").PaddingVertical(5)
                                 - SOptions.Text(label).Options(options).Bind(value).Dock(EDockType.Fill).HOffset(10, -10)
                                 - AxText(label, (int)(50 * (height / 100))),
             _ => SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height).Horizontal(5, "CE").PaddingHorizontal(5)
@@ -983,12 +1191,27 @@ public class AXSUI
     /// </summary>
     /// <param name="label"></param>
     /// <param name="onValueChange"></param>
+    /// <param name="defValue"></param>
     /// <param name="height"></param>
     /// <returns></returns>
     public static SContainerOptions AxMenuCheckBox(string label, Action<bool> onValueChange, bool defValue = false, float height = 50f)
     {
         return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
             - AxCheckBox(label, onValueChange).Value(defValue).HOffset(10, -10);
+    }
+
+    /// <summary>
+    /// Creates a toggleable checkbox with a background container binded to a value, mainly used with <see langword="AxCreateMenuPanel"/>, <see langword="AxCreateSidePanel"/>
+    /// </summary>
+    /// <param name="label"></param>
+    /// <param name="onValueChange"></param>
+    /// <param name="bindValue"></param>
+    /// <param name="height"></param>
+    /// <returns></returns>
+    public static SContainerOptions AxMenuCheckBox(string label, Action<bool> onValueChange, Observable<bool> bindValue, float height = 50f)
+    {
+        return SContainer.Background(Color.black.WithAlpha(0.9f), EBackground.None).PHeight(height)
+            - AxCheckBox(label, onValueChange).Bind(bindValue).HOffset(10, -10);
     }
 
     public enum Side
